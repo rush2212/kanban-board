@@ -6,15 +6,30 @@ import { initialColumns } from "../intialData";
 
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
+import { Tooltip } from "@mui/material";
+
+function getRandomBrightColor() {
+  const hue = Math.floor(Math.random() * 360);
+  const saturation = 70 + Math.floor(Math.random() * 30);
+  const lightness = 50 + Math.floor(Math.random() * 20);
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
 
 const KanbanBoard = () => {
-  const [columns, setColumns] = useState<ColumnType[]>(initialColumns);
+  const addColorToColumns = (cols: ColumnType[]) =>
+    cols.map((col) => ({
+      ...col,
+      color: col.color || getRandomBrightColor(),
+    }));
+
+  const [columns, setColumns] = useState<ColumnType[]>(addColorToColumns(initialColumns));
   const [visibleColumns, setVisibleColumns] = useState<ColumnType[]>([]);
   const [loadingCols, setLoadingCols] = useState(false);
   const [showAddColumnInput, setShowAddColumnInput] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState("");
 
   const COLUMN_BATCH_SIZE = 5;
+
   const boardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -30,6 +45,7 @@ const KanbanBoard = () => {
 
       if (atRight && !loadingCols && visibleColumns.length < columns.length) {
         setLoadingCols(true);
+
         setTimeout(() => {
           const nextBatch = columns.slice(
             visibleColumns.length,
@@ -53,18 +69,18 @@ const KanbanBoard = () => {
     };
   }, [visibleColumns, columns, loadingCols]);
 
-  const addColumn = () => {
-    if (!newColumnTitle.trim()) return;
+const addColumn = () => {
+  if (!newColumnTitle.trim()) return;
 
-    const newColumn: ColumnType = {
-      id: uuid(),
-      title: newColumnTitle.trim(),
-      tasks: [],
-    };
-    setColumns([newColumn, ...columns]); // Add at the start
-    setNewColumnTitle("");
-    setShowAddColumnInput(false);
+  const newColumn: ColumnType = {
+    id: uuid(),
+    title: newColumnTitle.trim(),
+    tasks: [],
   };
+  setColumns([newColumn, ...columns]); // Add to the start
+  setNewColumnTitle("");
+  setShowAddColumnInput(false);
+};
 
   const removeColumn = (id: string) => {
     setColumns(columns.filter((col) => col.id !== id));
@@ -122,6 +138,7 @@ const KanbanBoard = () => {
     );
   };
 
+  // Calculate total tasks count
   const totalTasksCount = columns.reduce((sum, col) => sum + col.tasks.length, 0);
 
   return (
@@ -136,66 +153,50 @@ const KanbanBoard = () => {
       }}
     >
       {/* Header */}
-      <div style={{ marginBottom: "1rem" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: 700, color: "#222" }}>
+      <div style={{ textAlign: "left", marginBottom: "1rem" }}>
+        <h1
+          style={{
+            marginBottom: "0.3rem",
+            fontWeight: "700",
+            fontSize: "2.2rem",
+            color: "#333",
+            userSelect: "none",
+          }}
+        >
           Kanban Board
         </h1>
-        <p style={{ fontSize: "1.1rem", color: "#666" }}>
-          Columns: <strong>{columns.length}</strong> &nbsp;|&nbsp; Tasks:{" "}
-          <strong>{totalTasksCount}</strong>
-        </p>
+        <div
+          style={{
+            color: "#666",
+            fontWeight: "600",
+            fontSize: "1.1rem",
+            userSelect: "none",
+          }}
+        >
+          Columns: <strong>{columns.length}</strong> &nbsp;|&nbsp; Tasks: <strong>{totalTasksCount}</strong>
+        </div>
       </div>
 
-      {/* Add Column Input */}
-      <div style={{ marginBottom: "1rem", textAlign: "right" }}>
-        {!showAddColumnInput ? (
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => setShowAddColumnInput(true)}
-          >
-            Add Column
-          </Button>
-        ) : (
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
-            <input
-              value={newColumnTitle}
-              onChange={(e) => setNewColumnTitle(e.target.value)}
-              placeholder="Enter column name"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") addColumn();
-                if (e.key === "Escape") {
-                  setShowAddColumnInput(false);
-                  setNewColumnTitle("");
-                }
-              }}
-              autoFocus
-              style={{
-                padding: "0.5rem",
-                borderRadius: "6px",
-                border: "1px solid #ccc",
-                minWidth: "200px",
-              }}
-            />
-            <Button variant="contained" onClick={addColumn}>
-              Add
-            </Button>
-            <Button
-              variant="outlined"
-              color="inherit"
-              onClick={() => {
-                setShowAddColumnInput(false);
-                setNewColumnTitle("");
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-        )}
+      {/* Add Column Button */}
+      <div style={{ textAlign: "left", marginBottom: "1.5rem" }}>
+        <Tooltip title="Add a new column" arrow>
+        <Button
+          variant="contained"
+          color="success"
+          size="small"
+          startIcon={<AddIcon />}
+          onClick={addColumn}
+          sx={{
+            fontWeight: "700",
+            boxShadow: "0 3px 6px rgba(0,0,0,0.2)"
+          }}
+        >
+          Add Column
+        </Button>
+        </Tooltip>
       </div>
 
-      {/* Columns */}
+      {/* Columns Container */}
       <div
         ref={boardRef}
         style={{
@@ -203,15 +204,16 @@ const KanbanBoard = () => {
           gap: "1.25rem",
           overflowX: "auto",
           paddingBottom: "1rem",
-          paddingTop: "0.5rem",
+          paddingLeft: "0.25rem",
           scrollbarWidth: "thin",
-          scrollbarColor: "#aaa transparent",
+          scrollbarColor: "#888 transparent",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {visibleColumns.map((col) => (
           <Column
             key={col.id}
-            column={{ ...col, color: "#1976d2" }} // consistent color
+            column={col}
             onRemove={() => removeColumn(col.id)}
             onAddTask={addTask}
             onDrop={onDrop}
@@ -223,12 +225,13 @@ const KanbanBoard = () => {
         {loadingCols &&
           Array.from({ length: 2 }).map((_, i) => (
             <div
-              key={`skeleton-${i}`}
+              key={`skeleton-col-${i}`}
               style={{
                 width: "260px",
                 height: "420px",
-                borderRadius: "10px",
+                borderRadius: "12px",
                 backgroundColor: "#ddd",
+                animation: "pulse 1.2s ease-in-out infinite",
                 flexShrink: 0,
               }}
             />

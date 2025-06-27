@@ -5,6 +5,7 @@ import TaskCard from "./TaskCard";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { Tooltip } from "@mui/material";
 
 type Props = {
   column: ColumnType;
@@ -76,14 +77,13 @@ const Column = ({
         minWidth: "260px",
         flexShrink: 0,
         border: "1px solid #ddd",
-        boxShadow:
-          "0 4px 6px rgba(0,0,0,0.05), 0 8px 20px rgba(0,0,0,0.07)",
+        boxShadow: "0 4px 6px rgba(0,0,0,0.05), 0 8px 20px rgba(0,0,0,0.07)",
       }}
     >
       {/* Column Header */}
       <div
         style={{
-          background:"blue",
+          background: "blue",
           borderRadius: "8px",
           padding: "0.6rem 0.8rem",
           display: "flex",
@@ -100,6 +100,8 @@ const Column = ({
         </span>
 
         <div style={{ display: "flex", gap: "0.3rem" }}>
+          <Tooltip title="Add a new Task" arrow>
+            
           <IconButton
             size="small"
             sx={{ color: "#fff" }}
@@ -108,7 +110,9 @@ const Column = ({
           >
             <AddIcon fontSize="small" />
           </IconButton>
+          </Tooltip>
 
+          <Tooltip title="Delete whole column" arrow>
           <IconButton
             size="small"
             sx={{ color: "#fff" }}
@@ -117,6 +121,7 @@ const Column = ({
           >
             <DeleteIcon fontSize="small" />
           </IconButton>
+          </Tooltip>
         </div>
       </div>
 
