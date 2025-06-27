@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { v4 as uuid } from 'uuid';
-import { ColumnType, Task } from '../type/types';
-import Column from './Column';
-import { initialColumns } from '../intialData';
+import React, { useState } from "react";
+import { v4 as uuid } from "uuid";
+import { ColumnType, Task } from "../type/types";
+import Column from "./Column";
+import { initialColumns } from "../intialData";
 
 const KanbanBoard = () => {
   const [columns, setColumns] = useState<ColumnType[]>(initialColumns);
@@ -38,14 +38,11 @@ const KanbanBoard = () => {
     fromColumnId: string,
     task: Task
   ) => {
-    e.dataTransfer.setData(
-      'task',
-      JSON.stringify({ task, fromColumnId })
-    );
+    e.dataTransfer.setData("task", JSON.stringify({ task, fromColumnId }));
   };
 
   const onDrop = (e: React.DragEvent, toColumnId: string) => {
-    const data = JSON.parse(e.dataTransfer.getData('task'));
+    const data = JSON.parse(e.dataTransfer.getData("task"));
     const { task, fromColumnId } = data;
 
     if (fromColumnId === toColumnId) return;
@@ -68,44 +65,55 @@ const KanbanBoard = () => {
     });
   };
 
+  const deleteTask = (columnId: string, taskId: string) => {
+    setColumns((prev) =>
+      prev.map((col) =>
+        col.id === columnId
+          ? { ...col, tasks: col.tasks.filter((t) => t.id !== taskId) }
+          : col
+      )
+    );
+  };
+
   return (
     <div>
-    <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-      <button
-        onClick={addColumn}
+      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+        <button
+          onClick={addColumn}
+          style={{
+            backgroundColor: "#0079bf",
+            color: "white",
+            padding: "0.6rem 1.2rem",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          ➕ Add Column
+        </button>
+      </div>
+      <div
         style={{
-          backgroundColor: '#0079bf',
-          color: 'white',
-          padding: '0.6rem 1.2rem',
-          border: 'none',
-          borderRadius: '6px',
-          cursor: 'pointer',
-          fontWeight: 'bold',
+          display: "flex",
+          gap: "1rem",
+          overflowX: "auto",
+          paddingBottom: "1rem",
+          justifyContent: "flex-start",
         }}
       >
-        ➕ Add Column
-      </button>
-    </div>
-    <div
-      style={{
-        display: 'flex',
-        gap: '1rem',
-        overflowX: 'auto',
-        paddingBottom: '1rem',
-        justifyContent: 'flex-start',
-      }}
-    >
-      {columns.map((col) => (
-        <Column
-          key={col.id}
-          column={col}
-          onRemove={() => removeColumn(col.id)}
-          onAddTask={addTask}
-          onDrop={onDrop}
-          onDragStart={onDragStart}
-        />
-      ))}
-    </div>
+        {columns.map((col) => (
+          <Column
+            key={col.id}
+            column={col}
+            onRemove={() => removeColumn(col.id)}
+            onAddTask={addTask}
+            onDrop={onDrop}
+            onDragStart={onDragStart}
+            onDeleteTask={deleteTask}
+          />
+        ))}
+      </div>
     </div>
   );
 };
