@@ -6,7 +6,20 @@ import { initialColumns } from "../intialData";
 
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
-import { Tooltip } from "@mui/material";
+import {
+  Tooltip,
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  IconButton,
+} from "@mui/material";
+
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import StackIcon from "@mui/icons-material/StackedLineChart"; // alternative icon for "most tasks"
+import FlagIcon from "@mui/icons-material/Flag";
+import CloseIcon from "@mui/icons-material/Close";
 
 function getRandomBrightColor() {
   const hue = Math.floor(Math.random() * 360);
@@ -22,16 +35,15 @@ const KanbanBoard = () => {
       color: col.color || getRandomBrightColor(),
     }));
 
-  const [columns, setColumns] = useState<ColumnType[]>(addColorToColumns(initialColumns));
+  const [columns, setColumns] = useState<ColumnType[]>(
+    addColorToColumns(initialColumns)
+  );
   const [visibleColumns, setVisibleColumns] = useState<ColumnType[]>([]);
   const [loadingCols, setLoadingCols] = useState(false);
-
-  // For add column UI:
   const [showAddColumnInput, setShowAddColumnInput] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState("");
 
   const COLUMN_BATCH_SIZE = 5;
-
   const boardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -141,7 +153,27 @@ const KanbanBoard = () => {
   };
 
   // Calculate total tasks count
-  const totalTasksCount = columns.reduce((sum, col) => sum + col.tasks.length, 0);
+  const totalTasksCount = columns.reduce(
+    (sum, col) => sum + col.tasks.length,
+    0
+  );
+  const totalColumnsCount = columns.length;
+
+  // Column with the most tasks
+  const columnMostTasks = columns.reduce(
+    (prev, current) =>
+      current.tasks.length > (prev?.tasks.length || 0) ? current : prev,
+    null as ColumnType | null
+  );
+
+  // Column with the least tasks (lead task)
+  const columnLeadTasks = columns.reduce(
+    (prev, current) =>
+      prev === null || current.tasks.length < prev.tasks.length
+        ? current
+        : prev,
+    null as ColumnType | null
+  );
 
   return (
     <div
@@ -154,96 +186,224 @@ const KanbanBoard = () => {
         flexDirection: "column",
       }}
     >
-      {/* Header */}
-      <div style={{ textAlign: "left", marginBottom: "1rem" }}>
-        <h1
-          style={{
-            marginBottom: "0.3rem",
-            fontWeight: "700",
-            fontSize: "2.2rem",
-            color: "#333",
-            userSelect: "none",
+      {/* Header Section */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "1.5rem",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
+      >
+        {/* Left side: Title + Add Column */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+            minWidth: 200,
           }}
         >
-          Kanban Board
-        </h1>
-        <div
-          style={{
-            color: "#666",
-            fontWeight: "600",
-            fontSize: "1.1rem",
-            userSelect: "none",
-          }}
-        >
-          Columns: <strong>{columns.length}</strong> &nbsp;|&nbsp; Tasks: <strong>{totalTasksCount}</strong>
-        </div>
-      </div>
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 700, userSelect: "none", color: "#333",marginBottom:2,marginTop:2 }}
+          >
+            Kanban Board
+          </Typography>
 
-      {/* Add Column Input/Button */}
-      <div style={{ textAlign: "left", marginBottom: "1.5rem" }}>
-        {showAddColumnInput ? (
-          <>
-            <input
-              type="text"
-              placeholder="Enter column title"
-              value={newColumnTitle}
-              onChange={(e) => setNewColumnTitle(e.target.value)}
-              style={{
-                padding: "6px 8px",
-                fontSize: "1rem",
-                marginRight: "0.5rem",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-                width: "200px",
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") addColumn();
-              }}
-              autoFocus
-            />
-            <Button
-              variant="contained"
-              color="success"
-              size="small"
-              onClick={addColumn}
-              sx={{
-                fontWeight: "700",
-                boxShadow: "0 3px 6px rgba(0,0,0,0.2)",
-              }}
-            >
-              Confirm
-            </Button>
-            <Button
-              variant="text"
-              color="error"
-              size="small"
-              onClick={() => {
-                setShowAddColumnInput(false);
-                setNewColumnTitle("");
-              }}
-              sx={{ ml: 1 }}
-            >
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <Tooltip title="Add a new column" arrow>
-            <Button
-              variant="contained"
-              color="success"
-              size="small"
-              startIcon={<AddIcon />}
-              onClick={() => setShowAddColumnInput(true)}
-              sx={{
-                fontWeight: "700",
-                boxShadow: "0 3px 6px rgba(0,0,0,0.2)",
-              }}
-            >
-              Add Column
-            </Button>
-          </Tooltip>
-        )}
-      </div>
+          {showAddColumnInput ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <TextField
+                size="small"
+                autoFocus
+                placeholder="Enter column title"
+                value={newColumnTitle}
+                onChange={(e) => setNewColumnTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") addColumn();
+                  if (e.key === "Escape") {
+                    setShowAddColumnInput(false);
+                    setNewColumnTitle("");
+                  }
+                }}
+              />
+              <Button
+                variant="contained"
+                color="success"
+                size="small"
+                onClick={addColumn}
+              >
+                Add
+              </Button>
+              <IconButton
+                size="small"
+                onClick={() => {
+                  setShowAddColumnInput(false);
+                  setNewColumnTitle("");
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          ) : (
+            <Tooltip title="Add a new column" arrow>
+              <Button
+                variant="contained"
+                color="success"
+                size="small"
+                startIcon={<AddIcon />}
+                onClick={() => setShowAddColumnInput(true)}
+                sx={{
+                  fontWeight: "700",
+                  boxShadow: "0 3px 6px rgba(0,0,0,0.2)",
+                }}
+              >
+                Add Column
+              </Button>
+            </Tooltip>
+          )}
+        </Box>
+
+        {/* Right side: 4 Cards */}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+            justifyContent: "flex-end",
+            flexGrow: 1,
+            marginLeft: 10,
+          }}
+        >
+          {/* Card 1: Total Columns */}
+          <Paper
+            elevation={3}
+            sx={{
+              p: 2,
+              minWidth: 80,
+              flexGrow: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              borderRadius: 2,
+              background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)", // purple-blue gradient
+              color: "white",
+            }}
+          >
+            <ViewColumnIcon fontSize="large" />
+            <Box>
+              <Typography variant="subtitle2" sx={{ opacity: 0.9 }}>
+                Total Columns
+              </Typography>
+              <Typography variant="h6" fontWeight={700}>
+                {totalColumnsCount}
+              </Typography>
+            </Box>
+          </Paper>
+
+          {/* Card 2: Total Tasks */}
+          <Paper
+            elevation={3}
+            sx={{
+              p: 2,
+              minWidth: 80,
+              flexGrow: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              borderRadius: 2,
+              background: "linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%)", // pink gradient
+              color: "white",
+            }}
+          >
+            <ListAltIcon fontSize="large" />
+            <Box>
+              <Typography variant="subtitle2" sx={{ opacity: 0.9 }}>
+                Total Tasks
+              </Typography>
+              <Typography variant="h6" fontWeight={700}>
+                {totalTasksCount}
+              </Typography>
+            </Box>
+          </Paper>
+
+          {/* Card 3: Column with Most Tasks */}
+          <Paper
+            elevation={3}
+            sx={{
+              p: 2,
+              minWidth: 80,
+              flexGrow: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              borderRadius: 2,
+              background: "linear-gradient(135deg, #43cea2 0%, #185a9d 100%)", // teal-blue gradient
+              color: "white",
+            }}
+          >
+            <StackIcon fontSize="large" />
+            <Box>
+              <Typography variant="subtitle2" sx={{ opacity: 0.9 }}>
+                Most Tasks
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyItems: "center",
+                }}
+              >
+                <Typography variant="body1" fontWeight={700} noWrap>
+                  {columnMostTasks ? columnMostTasks.title : "N/A"}
+                </Typography>
+                <Typography sx={{ opacity: 0.8 }}>
+                  ({columnMostTasks?.tasks.length || 0})
+                </Typography>
+              </Box>
+            </Box>
+          </Paper>
+
+          {/* Card 4: Column with Least Tasks */}
+          <Paper
+            elevation={3}
+            sx={{
+              p: 2,
+              minWidth: 80,
+              flexGrow: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: 1.5,
+              borderRadius: 2,
+              background: "linear-gradient(135deg, #f7971e 0%, #ffd200 100%)", // orange-yellow gradient
+              color: "white",
+            }}
+          >
+            <FlagIcon fontSize="large" />
+            <Box>
+              <Typography variant="subtitle2" sx={{ opacity: 0.9 }}>
+                Least Tasks
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyItems: "center",
+                }}
+              >
+                <Typography variant="body1" fontWeight={700} noWrap>
+                  {columnLeadTasks ? columnLeadTasks.title : "N/A"}
+                </Typography>
+                <Typography sx={{ opacity: 0.8 }}>
+                  ({columnLeadTasks?.tasks.length || 0})
+                </Typography>
+              </Box>
+            </Box>
+          </Paper>
+        </Box>
+      </Box>
 
       {/* Columns Container */}
       <div
