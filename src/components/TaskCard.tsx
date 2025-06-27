@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Task } from "../type/types";
 
-import IconButton from "@mui/material/IconButton";
+import { Box, IconButton, Tooltip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 type Props = {
@@ -10,47 +10,51 @@ type Props = {
   onDelete: () => void;
 };
 
+const DeleteButton = ({ onClick }: { onClick: () => void }) => (
+  <Tooltip title="Delete Task" arrow>
+    <IconButton
+      aria-label="delete task"
+      onClick={onClick}
+      size="small"
+      sx={{
+        position: "absolute",
+        right: 4,
+        top: 4,
+        color: "#c0392b",
+      }}
+    >
+      <DeleteIcon fontSize="small" />
+    </IconButton>
+  </Tooltip>
+);
+
 const TaskCard = ({ task, onDragStart, onDelete }: Props) => {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div
+    <Box
       draggable
       onDragStart={onDragStart}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{
+      sx={{
         position: "relative",
         padding: "0.75rem 2.5rem 0.75rem 0.75rem",
-        marginBottom: "0.6rem",
+        mb: "0.6rem",
         backgroundColor: "#fff",
         borderRadius: "6px",
         boxShadow: "0 1px 5px rgba(0, 0, 0, 0.1)",
         cursor: "grab",
-        transition: "transform 0.1s",
         userSelect: "none",
+        transition: "transform 0.15s",
+        "&:hover": {
+          transform: "scale(1.02)",
+        },
       }}
-      onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-      onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
     >
       {task.title}
-
-      {hovered && (
-        <IconButton
-          aria-label="delete task"
-          onClick={onDelete}
-          size="small"
-          style={{
-            position: "absolute",
-            right: 4,
-            top: 4,
-            color: "#c0392b",
-          }}
-        >
-          <DeleteIcon fontSize="small" />
-        </IconButton>
-      )}
-    </div>
+      {hovered && <DeleteButton onClick={onDelete} />}
+    </Box>
   );
 };
 

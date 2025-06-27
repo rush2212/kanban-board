@@ -9,7 +9,6 @@ import AddIcon from "@mui/icons-material/Add";
 import {
   Tooltip,
   Box,
-  Paper,
   Typography,
   TextField,
   IconButton,
@@ -17,9 +16,11 @@ import {
 
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import ListAltIcon from "@mui/icons-material/ListAlt";
-import StackIcon from "@mui/icons-material/StackedLineChart"; // alternative icon for "most tasks"
+import StackIcon from "@mui/icons-material/StackedLineChart"; 
 import FlagIcon from "@mui/icons-material/Flag";
 import CloseIcon from "@mui/icons-material/Close";
+import StatsCard from "./StatsCard";
+
 
 function getRandomBrightColor() {
   const hue = Math.floor(Math.random() * 360);
@@ -35,9 +36,7 @@ const KanbanBoard = () => {
       color: col.color || getRandomBrightColor(),
     }));
 
-  const [columns, setColumns] = useState<ColumnType[]>(
-    addColorToColumns(initialColumns)
-  );
+  const [columns, setColumns] = useState<ColumnType[]>(addColorToColumns(initialColumns));
   const [visibleColumns, setVisibleColumns] = useState<ColumnType[]>([]);
   const [loadingCols, setLoadingCols] = useState(false);
   const [showAddColumnInput, setShowAddColumnInput] = useState(false);
@@ -91,7 +90,7 @@ const KanbanBoard = () => {
       title: newColumnTitle.trim(),
       tasks: [],
     };
-    setColumns([newColumn, ...columns]); // Add to the start
+    setColumns([newColumn, ...columns]);
     setNewColumnTitle("");
     setShowAddColumnInput(false);
   };
@@ -124,8 +123,8 @@ const KanbanBoard = () => {
 
     if (fromColumnId === toColumnId) return;
 
-    setColumns((prevCols) => {
-      return prevCols.map((col) => {
+    setColumns((prevCols) =>
+      prevCols.map((col) => {
         if (col.id === fromColumnId) {
           return {
             ...col,
@@ -138,8 +137,8 @@ const KanbanBoard = () => {
           };
         }
         return col;
-      });
-    });
+      })
+    );
   };
 
   const deleteTask = (columnId: string, taskId: string) => {
@@ -152,63 +151,48 @@ const KanbanBoard = () => {
     );
   };
 
-  // Calculate total tasks count
-  const totalTasksCount = columns.reduce(
-    (sum, col) => sum + col.tasks.length,
-    0
-  );
+  const totalTasksCount = columns.reduce((sum, col) => sum + col.tasks.length, 0);
   const totalColumnsCount = columns.length;
 
-  // Column with the most tasks
   const columnMostTasks = columns.reduce(
     (prev, current) =>
       current.tasks.length > (prev?.tasks.length || 0) ? current : prev,
     null as ColumnType | null
   );
 
-  // Column with the least tasks (lead task)
   const columnLeadTasks = columns.reduce(
     (prev, current) =>
-      prev === null || current.tasks.length < prev.tasks.length
-        ? current
-        : prev,
+      prev === null || current.tasks.length < prev.tasks.length ? current : prev,
     null as ColumnType | null
   );
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         minHeight: "100vh",
         backgroundColor: "#f4f5f7",
-        padding: "1rem 2rem",
+        p: 3,
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      {/* Header Section */}
+      {/* Header */}
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "1.5rem",
+          mb: 3,
           flexWrap: "wrap",
           gap: 2,
         }}
       >
         {/* Left side: Title + Add Column */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-            minWidth: 200,
-          }}
-        >
+        <Box sx={{ minWidth: 220, display: "flex", flexDirection: "column", gap: 1 }}>
           <Typography
             variant="h4"
-            sx={{ fontWeight: 700, userSelect: "none", color: "#333",marginBottom:2,marginTop:2 }}
+            sx={{ fontWeight: 700, userSelect: "none", color: "#333" }}
           >
             Kanban Board
           </Typography>
@@ -229,12 +213,7 @@ const KanbanBoard = () => {
                   }
                 }}
               />
-              <Button
-                variant="contained"
-                color="success"
-                size="small"
-                onClick={addColumn}
-              >
+              <Button variant="contained" color="success" size="small" onClick={addColumn}>
                 Add
               </Button>
               <IconButton
@@ -255,10 +234,7 @@ const KanbanBoard = () => {
                 size="small"
                 startIcon={<AddIcon />}
                 onClick={() => setShowAddColumnInput(true)}
-                sx={{
-                  fontWeight: "700",
-                  boxShadow: "0 3px 6px rgba(0,0,0,0.2)",
-                }}
+                sx={{ fontWeight: 700, boxShadow: "0 3px 6px rgba(0,0,0,0.2)" }}
               >
                 Add Column
               </Button>
@@ -266,7 +242,7 @@ const KanbanBoard = () => {
           )}
         </Box>
 
-        {/* Right side: 4 Cards */}
+        {/* Right side: Stats Cards */}
         <Box
           sx={{
             display: "flex",
@@ -274,146 +250,55 @@ const KanbanBoard = () => {
             flexWrap: "wrap",
             justifyContent: "flex-end",
             flexGrow: 1,
-            marginLeft: 10,
+            ml: 4,
           }}
         >
-          {/* Card 1: Total Columns */}
-          <Paper
-            elevation={3}
-            sx={{
-              p: 2,
-              minWidth: 80,
-              flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              borderRadius: 2,
-              background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)", // purple-blue gradient
-              color: "white",
-            }}
-          >
-            <ViewColumnIcon fontSize="large" />
-            <Box>
-              <Typography variant="subtitle2" sx={{ opacity: 0.9 }}>
-                Total Columns
-              </Typography>
-              <Typography variant="h6" fontWeight={700}>
-                {totalColumnsCount}
-              </Typography>
-            </Box>
-          </Paper>
-
-          {/* Card 2: Total Tasks */}
-          <Paper
-            elevation={3}
-            sx={{
-              p: 2,
-              minWidth: 80,
-              flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              borderRadius: 2,
-              background: "linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%)", // pink gradient
-              color: "white",
-            }}
-          >
-            <ListAltIcon fontSize="large" />
-            <Box>
-              <Typography variant="subtitle2" sx={{ opacity: 0.9 }}>
-                Total Tasks
-              </Typography>
-              <Typography variant="h6" fontWeight={700}>
-                {totalTasksCount}
-              </Typography>
-            </Box>
-          </Paper>
-
-          {/* Card 3: Column with Most Tasks */}
-          <Paper
-            elevation={3}
-            sx={{
-              p: 2,
-              minWidth: 80,
-              flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              borderRadius: 2,
-              background: "linear-gradient(135deg, #43cea2 0%, #185a9d 100%)", // teal-blue gradient
-              color: "white",
-            }}
-          >
-            <StackIcon fontSize="large" />
-            <Box>
-              <Typography variant="subtitle2" sx={{ opacity: 0.9 }}>
-                Most Tasks
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyItems: "center",
-                }}
-              >
-                <Typography variant="body1" fontWeight={700} noWrap>
-                  {columnMostTasks ? columnMostTasks.title : "N/A"}
-                </Typography>
-                <Typography sx={{ opacity: 0.8 }}>
-                  ({columnMostTasks?.tasks.length || 0})
-                </Typography>
-              </Box>
-            </Box>
-          </Paper>
-
-          {/* Card 4: Column with Least Tasks */}
-          <Paper
-            elevation={3}
-            sx={{
-              p: 2,
-              minWidth: 80,
-              flexGrow: 1,
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              borderRadius: 2,
-              background: "linear-gradient(135deg, #f7971e 0%, #ffd200 100%)", // orange-yellow gradient
-              color: "white",
-            }}
-          >
-            <FlagIcon fontSize="large" />
-            <Box>
-              <Typography variant="subtitle2" sx={{ opacity: 0.9 }}>
-                Least Tasks
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyItems: "center",
-                }}
-              >
-                <Typography variant="body1" fontWeight={700} noWrap>
-                  {columnLeadTasks ? columnLeadTasks.title : "N/A"}
-                </Typography>
-                <Typography sx={{ opacity: 0.8 }}>
-                  ({columnLeadTasks?.tasks.length || 0})
-                </Typography>
-              </Box>
-            </Box>
-          </Paper>
+          <StatsCard
+            icon={<ViewColumnIcon fontSize="large" />}
+            title="Total Columns"
+            value={totalColumnsCount}
+            gradient="linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)"
+          />
+          <StatsCard
+            icon={<ListAltIcon fontSize="large" />}
+            title="Total Tasks"
+            value={totalTasksCount}
+            gradient="linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%)"
+          />
+          <StatsCard
+            icon={<StackIcon fontSize="large" />}
+            title="Most Tasks"
+            value={
+              <>
+                {columnMostTasks ? columnMostTasks.title : "N/A"} (
+                {columnMostTasks?.tasks.length || 0})
+              </>
+            }
+            gradient="linear-gradient(135deg, #43cea2 0%, #185a9d 100%)"
+          />
+          <StatsCard
+            icon={<FlagIcon fontSize="large" />}
+            title="Least Tasks"
+            value={
+              <>
+                {columnLeadTasks ? columnLeadTasks.title : "N/A"} (
+                {columnLeadTasks?.tasks.length || 0})
+              </>
+            }
+            gradient="linear-gradient(135deg, #f7971e 0%, #ffd200 100%)"
+          />
         </Box>
       </Box>
 
       {/* Columns Container */}
-      <div
+      <Box
         ref={boardRef}
-        style={{
+        sx={{
           display: "flex",
-          gap: "1.25rem",
+          gap: 1.5,
           overflowX: "auto",
-          paddingBottom: "1rem",
-          paddingLeft: "0.25rem",
+          pb: 2,
+          pl: 0.5,
           scrollbarWidth: "thin",
           scrollbarColor: "#888 transparent",
           WebkitOverflowScrolling: "touch",
@@ -433,20 +318,20 @@ const KanbanBoard = () => {
 
         {loadingCols &&
           Array.from({ length: 2 }).map((_, i) => (
-            <div
+            <Box
               key={`skeleton-col-${i}`}
-              style={{
-                width: "260px",
-                height: "420px",
-                borderRadius: "12px",
+              sx={{
+                width: 260,
+                height: 420,
+                borderRadius: 2,
                 backgroundColor: "#ddd",
                 animation: "pulse 1.2s ease-in-out infinite",
                 flexShrink: 0,
               }}
             />
           ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

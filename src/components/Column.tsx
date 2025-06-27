@@ -5,7 +5,7 @@ import TaskCard from "./TaskCard";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Tooltip } from "@mui/material";
+import { Tooltip, Box, TextField, Button, Stack } from "@mui/material";
 
 type Props = {
   column: ColumnType;
@@ -15,6 +15,56 @@ type Props = {
   onDragStart: (e: React.DragEvent, columnId: string, task: Task) => void;
   onDeleteTask: (columnId: string, taskId: string) => void;
 };
+
+const TASK_BATCH_SIZE = 15;
+
+const AddTaskInput = ({
+  value,
+  onChange,
+  onAdd,
+  onCancel,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onAdd: () => void;
+  onCancel: () => void;
+}) => (
+  <Box mb={2}>
+    <TextField
+      autoFocus
+      fullWidth
+      size="small"
+      placeholder="Task name"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") onAdd();
+        if (e.key === "Escape") onCancel();
+      }}
+      sx={{ mb: 1 }}
+    />
+    <Stack direction="row" spacing={1}>
+      <Button
+        variant="contained"
+        color="primary"
+        fullWidth
+        onClick={onAdd}
+        sx={{ fontWeight: "bold" }}
+      >
+        Add
+      </Button>
+      <Button
+        variant="outlined"
+        color="inherit"
+        fullWidth
+        onClick={onCancel}
+        sx={{ fontWeight: "bold" }}
+      >
+        Cancel
+      </Button>
+    </Stack>
+  </Box>
+);
 
 const Column = ({
   column,
@@ -28,7 +78,6 @@ const Column = ({
   const [visibleTasks, setVisibleTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
-  const TASK_BATCH_SIZE = 15;
 
   useEffect(() => {
     setVisibleTasks(column.tasks.slice(0, TASK_BATCH_SIZE));
@@ -66,129 +115,86 @@ const Column = ({
     setAddingTask(false);
   };
 
+  const handleCancel = () => {
+    setAddingTask(false);
+    setTaskTitle("");
+  };
+
   return (
-    <div
+    <Box
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => onDrop(e, column.id)}
-      style={{
+      sx={{
         backgroundColor: "#f9f9f9",
-        padding: "1rem",
-        borderRadius: "12px",
-        minWidth: "260px",
+        p: 2,
+        borderRadius: 2,
+        minWidth: 260,
         flexShrink: 0,
         border: "1px solid #ddd",
         boxShadow: "0 4px 6px rgba(0,0,0,0.05), 0 8px 20px rgba(0,0,0,0.07)",
+        display: "flex",
+        flexDirection: "column",
+        maxHeight: "80vh",
+        overflowY: "auto",
       }}
     >
       {/* Column Header */}
-      <div
-        style={{
-          background: "blue",
-          borderRadius: "8px",
-          padding: "0.6rem 0.8rem",
+      <Box
+        sx={{
+          backgroundColor: "primary.main",
+          borderRadius: 1,
+          p: 1,
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           fontWeight: "bold",
-          color: "#fff",
+          color: "primary.contrastText",
           fontSize: "1.05rem",
-          marginBottom: "0.5rem",
+          mb: 1,
+          userSelect: "none",
         }}
       >
-        <span>
+        <Box>
           {column.title} ({column.tasks.length})
-        </span>
+        </Box>
 
-        <div style={{ display: "flex", gap: "0.3rem" }}>
+        <Box sx={{ display: "flex", gap: 0.5 }}>
           <Tooltip title="Add a new Task" arrow>
-            
-          <IconButton
-            size="small"
-            sx={{ color: "#fff" }}
-            onClick={() => setAddingTask((prev) => !prev)}
-            aria-label="Add task"
-          >
-            <AddIcon fontSize="small" />
-          </IconButton>
+            <IconButton
+              size="small"
+              sx={{ color: "primary.contrastText" }}
+              onClick={() => setAddingTask((prev) => !prev)}
+              aria-label="Add task"
+            >
+              <AddIcon fontSize="small" />
+            </IconButton>
           </Tooltip>
 
           <Tooltip title="Delete whole column" arrow>
-          <IconButton
-            size="small"
-            sx={{ color: "#fff" }}
-            onClick={onRemove}
-            aria-label="Delete column"
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+            <IconButton
+              size="small"
+              sx={{ color: "primary.contrastText" }}
+              onClick={onRemove}
+              aria-label="Delete column"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
           </Tooltip>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* Add Task Input */}
       {addingTask && (
-        <div style={{ marginBottom: "1rem" }}>
-          <input
-            autoFocus
-            value={taskTitle}
-            onChange={(e) => setTaskTitle(e.target.value)}
-            placeholder="Task name"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleAdd();
-              if (e.key === "Escape") {
-                setAddingTask(false);
-                setTaskTitle("");
-              }
-            }}
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              borderRadius: "6px",
-              border: "1px solid #ccc",
-              marginBottom: "0.4rem",
-              fontSize: "0.95rem",
-            }}
-          />
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button
-              onClick={handleAdd}
-              style={{
-                flexGrow: 1,
-                backgroundColor: "#000",
-                color: "white",
-                padding: "0.5rem",
-                border: "none",
-                borderRadius: "5px",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
-              Add
-            </button>
-            <button
-              onClick={() => {
-                setAddingTask(false);
-                setTaskTitle("");
-              }}
-              style={{
-                flexGrow: 1,
-                backgroundColor: "#999",
-                color: "white",
-                padding: "0.5rem",
-                border: "none",
-                borderRadius: "5px",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+        <AddTaskInput
+          value={taskTitle}
+          onChange={setTaskTitle}
+          onAdd={handleAdd}
+          onCancel={handleCancel}
+        />
       )}
 
       {/* Task List */}
-      <div style={{ paddingRight: "4px" }}>
+      <Box sx={{ pr: 0.5 }}>
         {visibleTasks.map((task) => (
           <TaskCard
             key={task.id}
@@ -201,19 +207,19 @@ const Column = ({
         {/* Skeleton loader */}
         {loading &&
           Array.from({ length: 3 }).map((_, i) => (
-            <div
+            <Box
               key={i}
-              style={{
-                height: "40px",
-                borderRadius: "6px",
-                background: "#ddd",
-                marginBottom: "0.5rem",
+              sx={{
+                height: 40,
+                borderRadius: 1,
+                backgroundColor: "#ddd",
+                mb: 0.5,
                 animation: "pulse 1s infinite",
               }}
             />
           ))}
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
