@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Task } from "../type/types";
 
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 type Props = {
   task: Task;
   onDragStart: (e: React.DragEvent) => void;
@@ -17,35 +20,35 @@ const TaskCard = ({ task, onDragStart, onDelete }: Props) => {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        padding: "0.75rem",
+        position: "relative",
+        padding: "0.75rem 2.5rem 0.75rem 0.75rem",
         marginBottom: "0.6rem",
         backgroundColor: "#fff",
         borderRadius: "6px",
         boxShadow: "0 1px 5px rgba(0, 0, 0, 0.1)",
         cursor: "grab",
         transition: "transform 0.1s",
+        userSelect: "none",
       }}
       onMouseOver={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
       onMouseOut={(e) => (e.currentTarget.style.transform = "scale(1.0)")}
     >
       {task.title}
+
       {hovered && (
-        <button
+        <IconButton
+          aria-label="delete task"
           onClick={onDelete}
+          size="small"
           style={{
             position: "absolute",
-            right: "8px",
-            top: "8px",
-            border: "none",
-            background: "transparent",
+            right: 4,
+            top: 4,
             color: "#c0392b",
-            cursor: "pointer",
-            fontSize: "1rem",
           }}
-          title="Delete task"
         >
-          🗑️
-        </button>
+          <DeleteIcon fontSize="small" />
+        </IconButton>
       )}
     </div>
   );

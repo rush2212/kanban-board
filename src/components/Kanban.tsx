@@ -4,6 +4,9 @@ import { ColumnType, Task } from "../type/types";
 import Column from "./Column";
 import { initialColumns } from "../intialData";
 
+import Button from "@mui/material/Button";
+import AddIcon from "@mui/icons-material/Add";
+
 const KanbanBoard = () => {
   const [columns, setColumns] = useState<ColumnType[]>(initialColumns);
   const [visibleColumns, setVisibleColumns] = useState<ColumnType[]>([]);
@@ -62,16 +65,15 @@ const KanbanBoard = () => {
     setColumns(columns.filter((col) => col.id !== id));
   };
 
-const addTask = (columnId: string, title: string) => {
-  setColumns((prev) =>
-    prev.map((col) =>
-      col.id === columnId
-        ? { ...col, tasks: [{ id: uuid(), title }, ...col.tasks] } // new task at top
-        : col
-    )
-  );
-};
-
+  const addTask = (columnId: string, title: string) => {
+    setColumns((prev) =>
+      prev.map((col) =>
+        col.id === columnId
+          ? { ...col, tasks: [{ id: uuid(), title }, ...col.tasks] } // new task at top
+          : col
+      )
+    );
+  };
 
   const onDragStart = (
     e: React.DragEvent,
@@ -116,32 +118,45 @@ const addTask = (columnId: string, title: string) => {
   };
 
   return (
-    <div>
-      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-        <button
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#f4f5f7",
+        padding: "1rem 1.5rem",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+      }}
+    >
+      <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
           onClick={addColumn}
-          style={{
-            backgroundColor: "#0079bf",
-            color: "white",
-            padding: "0.6rem 1.2rem",
-            border: "none",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontWeight: "bold",
+          sx={{
+            fontWeight: "700",
+            fontSize: "1rem",
+            padding: "0.75rem 1.8rem",
+            boxShadow: "0 3px 6px rgba(0,0,0,0.2)",
+            "&:hover": {
+              backgroundColor: "#005f8a",
+            },
           }}
         >
-          ➕ Add Column
-        </button>
+          Add Column
+        </Button>
       </div>
 
       <div
         ref={boardRef}
         style={{
           display: "flex",
-          gap: "1rem",
+          gap: "1.25rem",
           overflowX: "auto",
           paddingBottom: "1rem",
           paddingLeft: "1rem",
+          scrollbarWidth: "thin",
+          scrollbarColor: "#888 transparent",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {visibleColumns.map((col) => (
@@ -162,10 +177,10 @@ const addTask = (columnId: string, title: string) => {
               key={`skeleton-col-${i}`}
               style={{
                 width: "260px",
-                height: "400px",
-                borderRadius: "10px",
+                height: "420px",
+                borderRadius: "12px",
                 backgroundColor: "#ddd",
-                animation: "pulse 1s infinite",
+                animation: "pulse 1.2s ease-in-out infinite",
                 flexShrink: 0,
               }}
             />

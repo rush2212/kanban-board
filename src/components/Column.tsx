@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { ColumnType, Task } from "../type/types";
 import TaskCard from "./TaskCard";
 
+import IconButton from "@mui/material/IconButton";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 type Props = {
   column: ColumnType;
   onRemove: () => void;
@@ -84,44 +88,28 @@ const Column = ({
       >
         <strong style={{ fontSize: "1.1rem" }}>{column.title}</strong>
 
-        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          {/* Plus button */}
-          <button
+        <div style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
+          <IconButton
+            size="small"
+            color="success"
             onClick={() => setAddingTask((prev) => !prev)}
-            title="Add new task"
-            style={{
-              border: "none",
-              background: "transparent",
-              color: "#5aac44",
-              fontSize: "1.5rem",
-              cursor: "pointer",
-              lineHeight: 1,
-              padding: 0,
-            }}
+            aria-label="Add task"
           >
-            ➕
-          </button>
+            <AddIcon />
+          </IconButton>
 
-          {/* Delete column button */}
-          <button
+          <IconButton
+            size="small"
+            color="error"
             onClick={onRemove}
-            title="Remove column"
-            style={{
-              border: "none",
-              background: "transparent",
-              color: "#c0392b",
-              fontSize: "1.2rem",
-              cursor: "pointer",
-              lineHeight: 1,
-              padding: 0,
-            }}
+            aria-label="Delete column"
           >
-            ✖
-          </button>
+            <DeleteIcon />
+          </IconButton>
         </div>
       </div>
 
-      {/* Add Task Input - shown only when addingTask is true */}
+      {/* Add Task Input */}
       {addingTask && (
         <div style={{ marginTop: "0.75rem" }}>
           <input
@@ -143,6 +131,7 @@ const Column = ({
               borderRadius: "5px",
               border: "1px solid #ccc",
               outline: "none",
+              fontSize: "0.95rem",
             }}
           />
           <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -157,6 +146,7 @@ const Column = ({
                 borderRadius: "5px",
                 fontWeight: "bold",
                 cursor: "pointer",
+                fontSize: "0.95rem",
               }}
             >
               Add
@@ -175,6 +165,7 @@ const Column = ({
                 borderRadius: "5px",
                 fontWeight: "bold",
                 cursor: "pointer",
+                fontSize: "0.95rem",
               }}
             >
               Cancel
