@@ -70,19 +70,42 @@ const KanbanBoard = () => {
 
   return (
     <div>
-      <button onClick={addColumn}>Add Column</button>
-      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        {columns.map((col) => (
-          <Column
-            key={col.id}
-            column={col}
-            onRemove={() => removeColumn(col.id)}
-            onAddTask={addTask}
-            onDrop={onDrop}
-            onDragStart={onDragStart}
-          />
-        ))}
-      </div>
+    <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
+      <button
+        onClick={addColumn}
+        style={{
+          backgroundColor: '#0079bf',
+          color: 'white',
+          padding: '0.6rem 1.2rem',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+        }}
+      >
+        ➕ Add Column
+      </button>
+    </div>
+    <div
+      style={{
+        display: 'flex',
+        gap: '1rem',
+        overflowX: 'auto',
+        paddingBottom: '1rem',
+        justifyContent: 'flex-start',
+      }}
+    >
+      {columns.map((col) => (
+        <Column
+          key={col.id}
+          column={col}
+          onRemove={() => removeColumn(col.id)}
+          onAddTask={addTask}
+          onDrop={onDrop}
+          onDragStart={onDragStart}
+        />
+      ))}
+    </div>
     </div>
   );
 };
