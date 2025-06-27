@@ -7,4 +7,5 @@ export type ColumnType = {
   id: string;
   title: string;
   tasks: Task[];
+  color?:string;
 };

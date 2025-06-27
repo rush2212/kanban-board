@@ -5,13 +5,12 @@ function App() {
   return (
     <div
       style={{
-        padding: '2rem',
+        padding: '0.1rem',
         backgroundColor: '#f4f5f7',
         minHeight: '100vh',
         fontFamily: 'Segoe UI, sans-serif',
       }}
     >
-      <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>📋 Kanban Board</h2>
       <KanbanBoard />
     </div>
   );

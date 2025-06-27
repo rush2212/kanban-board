@@ -70,48 +70,59 @@ const Column = ({
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => onDrop(e, column.id)}
       style={{
-        backgroundColor: "#ebecf0",
+        backgroundColor: "#f9f9f9",
         padding: "1rem",
-        borderRadius: "10px",
+        borderRadius: "12px",
         minWidth: "260px",
-        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
         flexShrink: 0,
+        border: "1px solid #ddd",
+        boxShadow:
+          "0 4px 6px rgba(0,0,0,0.05), 0 8px 20px rgba(0,0,0,0.07)",
       }}
     >
       {/* Column Header */}
       <div
         style={{
+          background:"blue",
+          borderRadius: "8px",
+          padding: "0.6rem 0.8rem",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          fontWeight: "bold",
+          color: "#fff",
+          fontSize: "1.05rem",
+          marginBottom: "0.5rem",
         }}
       >
-        <strong style={{ fontSize: "1.1rem" }}>{column.title}</strong>
+        <span>
+          {column.title} ({column.tasks.length})
+        </span>
 
-        <div style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "0.3rem" }}>
           <IconButton
             size="small"
-            color="success"
+            sx={{ color: "#fff" }}
             onClick={() => setAddingTask((prev) => !prev)}
             aria-label="Add task"
           >
-            <AddIcon />
+            <AddIcon fontSize="small" />
           </IconButton>
 
           <IconButton
             size="small"
-            color="error"
+            sx={{ color: "#fff" }}
             onClick={onRemove}
             aria-label="Delete column"
           >
-            <DeleteIcon />
+            <DeleteIcon fontSize="small" />
           </IconButton>
         </div>
       </div>
 
       {/* Add Task Input */}
       {addingTask && (
-        <div style={{ marginTop: "0.75rem" }}>
+        <div style={{ marginBottom: "1rem" }}>
           <input
             autoFocus
             value={taskTitle}
@@ -127,10 +138,9 @@ const Column = ({
             style={{
               width: "100%",
               padding: "0.5rem",
-              marginBottom: "0.5rem",
-              borderRadius: "5px",
+              borderRadius: "6px",
               border: "1px solid #ccc",
-              outline: "none",
+              marginBottom: "0.4rem",
               fontSize: "0.95rem",
             }}
           />
@@ -139,14 +149,13 @@ const Column = ({
               onClick={handleAdd}
               style={{
                 flexGrow: 1,
-                backgroundColor: "#5aac44",
+                backgroundColor: "#000",
                 color: "white",
                 padding: "0.5rem",
                 border: "none",
                 borderRadius: "5px",
                 fontWeight: "bold",
                 cursor: "pointer",
-                fontSize: "0.95rem",
               }}
             >
               Add
@@ -165,7 +174,6 @@ const Column = ({
                 borderRadius: "5px",
                 fontWeight: "bold",
                 cursor: "pointer",
-                fontSize: "0.95rem",
               }}
             >
               Cancel
@@ -175,7 +183,7 @@ const Column = ({
       )}
 
       {/* Task List */}
-      <div style={{ marginTop: "1rem", paddingRight: "4px" }}>
+      <div style={{ paddingRight: "4px" }}>
         {visibleTasks.map((task) => (
           <TaskCard
             key={task.id}
