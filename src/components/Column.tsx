@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ColumnType, Task } from "../type/types";
 import TaskCard from "./TaskCard";
 
@@ -20,6 +20,38 @@ const Column = ({
   onDeleteTask,
 }: Props) => {
   const [taskTitle, setTaskTitle] = useState("");
+  const [visibleTasks, setVisibleTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
+  const TASK_BATCH_SIZE = 15;
+
+  useEffect(() => {
+    setVisibleTasks(column.tasks.slice(0, TASK_BATCH_SIZE));
+  }, [column.tasks]);
+
+  useEffect(() => {
+    const handleWindowScroll = () => {
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const fullHeight = document.documentElement.scrollHeight;
+
+      const atBottom = scrollTop + windowHeight >= fullHeight - 50;
+
+      if (atBottom && !loading && visibleTasks.length < column.tasks.length) {
+        setLoading(true);
+        setTimeout(() => {
+          const nextBatch = column.tasks.slice(
+            visibleTasks.length,
+            visibleTasks.length + TASK_BATCH_SIZE
+          );
+          setVisibleTasks((prev) => [...prev, ...nextBatch]);
+          setLoading(false);
+        }, 700);
+      }
+    };
+
+    window.addEventListener("scroll", handleWindowScroll);
+    return () => window.removeEventListener("scroll", handleWindowScroll);
+  }, [visibleTasks, column.tasks, loading]);
 
   const handleAdd = () => {
     if (!taskTitle.trim()) return;
@@ -40,6 +72,7 @@ const Column = ({
         flexShrink: 0,
       }}
     >
+      {/* Column Header */}
       <div
         style={{
           display: "flex",
@@ -63,8 +96,9 @@ const Column = ({
         </button>
       </div>
 
-      <div style={{ marginTop: "1rem" }}>
-        {column.tasks.map((task) => (
+      {/* Task List */}
+      <div style={{ marginTop: "1rem", paddingRight: "4px" }}>
+        {visibleTasks.map((task) => (
           <TaskCard
             key={task.id}
             task={task}
@@ -72,8 +106,24 @@ const Column = ({
             onDelete={() => onDeleteTask(column.id, task.id)}
           />
         ))}
+
+        {/* Skeleton loader */}
+        {loading &&
+          Array.from({ length: 3 }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                height: "40px",
+                borderRadius: "6px",
+                background: "#ddd",
+                marginBottom: "0.5rem",
+                animation: "pulse 1s infinite",
+              }}
+            />
+          ))}
       </div>
 
+      {/* Add Task Input */}
       <div style={{ marginTop: "1rem" }}>
         <input
           value={taskTitle}
