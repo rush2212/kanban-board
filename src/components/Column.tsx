@@ -22,6 +22,7 @@ const Column = ({
   const [taskTitle, setTaskTitle] = useState("");
   const [visibleTasks, setVisibleTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
+  const [addingTask, setAddingTask] = useState(false);
   const TASK_BATCH_SIZE = 15;
 
   useEffect(() => {
@@ -57,6 +58,7 @@ const Column = ({
     if (!taskTitle.trim()) return;
     onAddTask(column.id, taskTitle.trim());
     setTaskTitle("");
+    setAddingTask(false);
   };
 
   return (
@@ -81,20 +83,105 @@ const Column = ({
         }}
       >
         <strong style={{ fontSize: "1.1rem" }}>{column.title}</strong>
-        <button
-          onClick={onRemove}
-          style={{
-            border: "none",
-            background: "transparent",
-            color: "#c0392b",
-            fontSize: "1.1rem",
-            cursor: "pointer",
-          }}
-          title="Remove column"
-        >
-          ✖
-        </button>
+
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          {/* Plus button */}
+          <button
+            onClick={() => setAddingTask((prev) => !prev)}
+            title="Add new task"
+            style={{
+              border: "none",
+              background: "transparent",
+              color: "#5aac44",
+              fontSize: "1.5rem",
+              cursor: "pointer",
+              lineHeight: 1,
+              padding: 0,
+            }}
+          >
+            ➕
+          </button>
+
+          {/* Delete column button */}
+          <button
+            onClick={onRemove}
+            title="Remove column"
+            style={{
+              border: "none",
+              background: "transparent",
+              color: "#c0392b",
+              fontSize: "1.2rem",
+              cursor: "pointer",
+              lineHeight: 1,
+              padding: 0,
+            }}
+          >
+            ✖
+          </button>
+        </div>
       </div>
+
+      {/* Add Task Input - shown only when addingTask is true */}
+      {addingTask && (
+        <div style={{ marginTop: "0.75rem" }}>
+          <input
+            autoFocus
+            value={taskTitle}
+            onChange={(e) => setTaskTitle(e.target.value)}
+            placeholder="Task name"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAdd();
+              if (e.key === "Escape") {
+                setAddingTask(false);
+                setTaskTitle("");
+              }
+            }}
+            style={{
+              width: "100%",
+              padding: "0.5rem",
+              marginBottom: "0.5rem",
+              borderRadius: "5px",
+              border: "1px solid #ccc",
+              outline: "none",
+            }}
+          />
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button
+              onClick={handleAdd}
+              style={{
+                flexGrow: 1,
+                backgroundColor: "#5aac44",
+                color: "white",
+                padding: "0.5rem",
+                border: "none",
+                borderRadius: "5px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Add
+            </button>
+            <button
+              onClick={() => {
+                setAddingTask(false);
+                setTaskTitle("");
+              }}
+              style={{
+                flexGrow: 1,
+                backgroundColor: "#999",
+                color: "white",
+                padding: "0.5rem",
+                border: "none",
+                borderRadius: "5px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Task List */}
       <div style={{ marginTop: "1rem", paddingRight: "4px" }}>
@@ -121,38 +208,6 @@ const Column = ({
               }}
             />
           ))}
-      </div>
-
-      {/* Add Task Input */}
-      <div style={{ marginTop: "1rem" }}>
-        <input
-          value={taskTitle}
-          onChange={(e) => setTaskTitle(e.target.value)}
-          placeholder="Task name"
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            marginBottom: "0.5rem",
-            borderRadius: "5px",
-            border: "1px solid #ccc",
-            outline: "none",
-          }}
-        />
-        <button
-          onClick={handleAdd}
-          style={{
-            width: "100%",
-            backgroundColor: "#5aac44",
-            color: "white",
-            padding: "0.5rem",
-            border: "none",
-            borderRadius: "5px",
-            fontWeight: "bold",
-            cursor: "pointer",
-          }}
-        >
-          Add Task
-        </button>
       </div>
     </div>
   );

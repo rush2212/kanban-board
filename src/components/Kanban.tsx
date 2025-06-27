@@ -62,18 +62,16 @@ const KanbanBoard = () => {
     setColumns(columns.filter((col) => col.id !== id));
   };
 
-  const addTask = (columnId: string, title: string) => {
-    setColumns((prev) =>
-      prev.map((col) =>
-        col.id === columnId
-          ? {
-              ...col,
-              tasks: [...col.tasks, { id: uuid(), title }],
-            }
-          : col
-      )
-    );
-  };
+const addTask = (columnId: string, title: string) => {
+  setColumns((prev) =>
+    prev.map((col) =>
+      col.id === columnId
+        ? { ...col, tasks: [{ id: uuid(), title }, ...col.tasks] } // new task at top
+        : col
+    )
+  );
+};
+
 
   const onDragStart = (
     e: React.DragEvent,
