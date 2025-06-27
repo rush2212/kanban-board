@@ -25,6 +25,8 @@ const KanbanBoard = () => {
   const [columns, setColumns] = useState<ColumnType[]>(addColorToColumns(initialColumns));
   const [visibleColumns, setVisibleColumns] = useState<ColumnType[]>([]);
   const [loadingCols, setLoadingCols] = useState(false);
+
+  // For add column UI:
   const [showAddColumnInput, setShowAddColumnInput] = useState(false);
   const [newColumnTitle, setNewColumnTitle] = useState("");
 
@@ -69,18 +71,18 @@ const KanbanBoard = () => {
     };
   }, [visibleColumns, columns, loadingCols]);
 
-const addColumn = () => {
-  if (!newColumnTitle.trim()) return;
+  const addColumn = () => {
+    if (!newColumnTitle.trim()) return;
 
-  const newColumn: ColumnType = {
-    id: uuid(),
-    title: newColumnTitle.trim(),
-    tasks: [],
+    const newColumn: ColumnType = {
+      id: uuid(),
+      title: newColumnTitle.trim(),
+      tasks: [],
+    };
+    setColumns([newColumn, ...columns]); // Add to the start
+    setNewColumnTitle("");
+    setShowAddColumnInput(false);
   };
-  setColumns([newColumn, ...columns]); // Add to the start
-  setNewColumnTitle("");
-  setShowAddColumnInput(false);
-};
 
   const removeColumn = (id: string) => {
     setColumns(columns.filter((col) => col.id !== id));
@@ -177,23 +179,70 @@ const addColumn = () => {
         </div>
       </div>
 
-      {/* Add Column Button */}
+      {/* Add Column Input/Button */}
       <div style={{ textAlign: "left", marginBottom: "1.5rem" }}>
-        <Tooltip title="Add a new column" arrow>
-        <Button
-          variant="contained"
-          color="success"
-          size="small"
-          startIcon={<AddIcon />}
-          onClick={addColumn}
-          sx={{
-            fontWeight: "700",
-            boxShadow: "0 3px 6px rgba(0,0,0,0.2)"
-          }}
-        >
-          Add Column
-        </Button>
-        </Tooltip>
+        {showAddColumnInput ? (
+          <>
+            <input
+              type="text"
+              placeholder="Enter column title"
+              value={newColumnTitle}
+              onChange={(e) => setNewColumnTitle(e.target.value)}
+              style={{
+                padding: "6px 8px",
+                fontSize: "1rem",
+                marginRight: "0.5rem",
+                borderRadius: "4px",
+                border: "1px solid #ccc",
+                width: "200px",
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") addColumn();
+              }}
+              autoFocus
+            />
+            <Button
+              variant="contained"
+              color="success"
+              size="small"
+              onClick={addColumn}
+              sx={{
+                fontWeight: "700",
+                boxShadow: "0 3px 6px rgba(0,0,0,0.2)",
+              }}
+            >
+              Confirm
+            </Button>
+            <Button
+              variant="text"
+              color="error"
+              size="small"
+              onClick={() => {
+                setShowAddColumnInput(false);
+                setNewColumnTitle("");
+              }}
+              sx={{ ml: 1 }}
+            >
+              Cancel
+            </Button>
+          </>
+        ) : (
+          <Tooltip title="Add a new column" arrow>
+            <Button
+              variant="contained"
+              color="success"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={() => setShowAddColumnInput(true)}
+              sx={{
+                fontWeight: "700",
+                boxShadow: "0 3px 6px rgba(0,0,0,0.2)",
+              }}
+            >
+              Add Column
+            </Button>
+          </Tooltip>
+        )}
       </div>
 
       {/* Columns Container */}
