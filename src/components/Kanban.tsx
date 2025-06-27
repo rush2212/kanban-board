@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { v4 as uuid } from "uuid";
 import { ColumnType, Task } from "../type/types";
 import Column from "./Column";
@@ -6,6 +6,48 @@ import { initialColumns } from "../intialData";
 
 const KanbanBoard = () => {
   const [columns, setColumns] = useState<ColumnType[]>(initialColumns);
+  const [visibleColumns, setVisibleColumns] = useState<ColumnType[]>([]);
+  const [loadingCols, setLoadingCols] = useState(false);
+  const COLUMN_BATCH_SIZE = 5;
+
+  const boardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setVisibleColumns(columns.slice(0, COLUMN_BATCH_SIZE));
+  }, [columns]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!boardRef.current) return;
+
+      const { scrollLeft, scrollWidth, clientWidth } = boardRef.current;
+      const atRight = scrollLeft + clientWidth >= scrollWidth - 10;
+
+      if (atRight && !loadingCols && visibleColumns.length < columns.length) {
+        setLoadingCols(true);
+
+        setTimeout(() => {
+          const nextBatch = columns.slice(
+            visibleColumns.length,
+            visibleColumns.length + COLUMN_BATCH_SIZE
+          );
+          setVisibleColumns((prev) => [...prev, ...nextBatch]);
+          setLoadingCols(false);
+        }, 700);
+      }
+    };
+
+    const scrollContainer = boardRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (scrollContainer) {
+        scrollContainer.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [visibleColumns, columns, loadingCols]);
 
   const addColumn = () => {
     const newColumn: ColumnType = {
@@ -93,16 +135,18 @@ const KanbanBoard = () => {
           ➕ Add Column
         </button>
       </div>
+
       <div
+        ref={boardRef}
         style={{
           display: "flex",
           gap: "1rem",
           overflowX: "auto",
           paddingBottom: "1rem",
-          justifyContent: "flex-start",
+          paddingLeft: "1rem",
         }}
       >
-        {columns.map((col) => (
+        {visibleColumns.map((col) => (
           <Column
             key={col.id}
             column={col}
@@ -113,6 +157,21 @@ const KanbanBoard = () => {
             onDeleteTask={deleteTask}
           />
         ))}
+
+        {loadingCols &&
+          Array.from({ length: 2 }).map((_, i) => (
+            <div
+              key={`skeleton-col-${i}`}
+              style={{
+                width: "260px",
+                height: "400px",
+                borderRadius: "10px",
+                backgroundColor: "#ddd",
+                animation: "pulse 1s infinite",
+                flexShrink: 0,
+              }}
+            />
+          ))}
       </div>
     </div>
   );
